@@ -35,6 +35,7 @@ bool TwitchTMI::OnLoad(const CString& sArgsi, CString& sMessage)
 
 	PutIRC("CAP REQ :twitch.tv/membership");
 	PutIRC("CAP REQ :twitch.tv/tags");
+	PutIRC("CAP REQ :twitch.tv/commands");
 
 	return true;
 }
