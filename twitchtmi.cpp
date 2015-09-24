@@ -83,62 +83,47 @@ CModule::EModRet TwitchTMI::OnUserJoin(CString& sChannel, CString& sKey)
 	return CModule::CONTINUE;
 }
 
-CModule::EModRet TwitchTMI::OnPrivMessage(CTextMessage &Message)
+CModule::EModRet TwitchTMI::OnPrivMsg(CNick& nick, CString& sMessage)
 {
-	if(Message.GetNick().GetNick().Equals("jtv"))
+	if(nick.GetNick().Equals("jtv", true))
 		return CModule::HALT;
 
 	return CModule::CONTINUE;
 }
 
-CModule::EModRet TwitchTMI::OnChanMessage(CTextMessage &Message)
+CModule::EModRet TwitchTMI::OnChanMsg(CNick& nick, CChan& channel, CString& sMessage)
 {
-	if(Message.GetNick().GetNick().Equals("jtv"))
+	if(nick.GetNick().Equals("jtv", true))
 		return CModule::HALT;
 
-	if(Message.GetText() == "FrankerZ" && std::time(nullptr) - lastFrankerZ > 10)
+	if(sMessage == "FrankerZ" && std::time(nullptr) - lastFrankerZ > 10)
 	{
 		std::stringstream ss1, ss2;
 		CString mynick = GetNetwork()->GetIRCNick().GetNickMask();
-		CChan *chan = Message.GetChan();
 
-		ss1 << "PRIVMSG " << chan->GetName() << " :FrankerZ";
-		ss2 << ":" << mynick << " PRIVMSG " << chan->GetName() << " :";
+		ss1 << "PRIVMSG " << channel.GetName() << " :FrankerZ";
+		ss2 << ":" << mynick << " PRIVMSG " << channel.GetName() << " :";
 
 		PutIRC(ss1.str());
 		CString s2 = ss2.str();
 
-		CThreadPool::Get().addJob(new GenericJob([]() {}, [this, s2, chan]()
+		CThreadPool::Get().addJob(new GenericJob([]() {}, [this, s2, &channel]()
 		{
 			PutUser(s2 + "FrankerZ");
 
-			if(!chan->AutoClearChanBuffer() || !GetNetwork()->IsUserOnline() || chan->IsDetached()) {
-				chan->AddBuffer(s2+ "{text}", "FrankerZ");
+			if(!channel.AutoClearChanBuffer() || !GetNetwork()->IsUserOnline() || channel.IsDetached()) {
+				channel.AddBuffer(s2+ "{text}", "FrankerZ");
 			}
 		}));
 
 		lastFrankerZ = std::time(nullptr);
 	}
 
-	CString realNick = Message.GetTag("display-name").Trim_n();
-
-	if(realNick != "")
-	{
-		Message.GetNick().SetNick(realNick);
-	}
-
 	return CModule::CONTINUE;
 }
 
-CModule::EModRet TwitchTMI::OnChanActionMessage(CActionMessage &Message)
+CModule::EModRet TwitchTMI::OnChanAction (CNick &Nick, CChan &Channel, CString &sMessage)
 {
-	CString realNick = Message.GetTag("display-name").Trim_n();
-
-	if(realNick != "")
-	{
-		Message.GetNick().SetNick(realNick);
-	}
-
 	return CModule::CONTINUE;
 }
 
