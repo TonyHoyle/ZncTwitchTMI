@@ -54,6 +54,7 @@ void TwitchTMI::OnIRCConnected()
 {
 	PutIRC("CAP REQ :twitch.tv/membership");
 	PutIRC("CAP REQ :twitch.tv/tags");
+	PutIRC("CAP REQ :twitch.tv/commands");
 }
 
 CModule::EModRet TwitchTMI::OnUserRaw(CString &sLine)
@@ -112,6 +113,11 @@ bool TwitchTMI::OnServerCapAvailable(const CString &sCap)
 	else if(sCap == "twitch.tv/tags")
 	{
 		CUtils::PrintMessage("TwitchTMI: Requesting twitch.tv/tags cap");
+		return true;
+	}
+	else if(sCap == "twitch.tv/commands")
+	{
+		CUtils::PrintMessage("TwitchTMI: Requesting twitch.tv/commands cap");
 		return true;
 	}
 
