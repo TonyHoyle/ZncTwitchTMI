@@ -11,11 +11,9 @@
 #include "twitchtmi.h"
 #include "jload.h"
 
-
-
 TwitchTMI::~TwitchTMI()
 {
-
+	debug = false;
 }
 
 bool TwitchTMI::OnLoad(const CString& sArgsi, CString& sMessage)
@@ -55,6 +53,13 @@ void TwitchTMI::OnIRCConnected()
 	PutIRC("CAP REQ :twitch.tv/membership");
 	PutIRC("CAP REQ :twitch.tv/tags");
 	PutIRC("CAP REQ :twitch.tv/commands");
+}
+
+CModule::EModRet TwitchTMI::OnRaw(CString &sLine)
+{
+	if(debug)
+		PutUser(":twitch PRIVMSG twitch:" + sLine);
+	return CModule::CONTINUE;
 }
 
 CModule::EModRet TwitchTMI::OnUserRaw(CString &sLine)
@@ -100,6 +105,9 @@ CModule::EModRet TwitchTMI::OnChanMsg(CNick& nick, CChan& channel, CString& sMes
 
 CModule::EModRet TwitchTMI::OnChanAction (CNick &Nick, CChan &Channel, CString &sMessage)
 {
+	if(Nick.GetNick().Equals("jtv", true))
+		return CModule::HALT;
+
 	return CModule::CONTINUE;
 }
 
@@ -197,11 +205,15 @@ void TwitchTMIJob::runMain()
 	}
 }
 
+void TwitchTMI::DebugCommand(const CString& sLine)
+{
+	debug = sLine.AsLower() == "on";
+}
 
 template<> void TModInfo<TwitchTMI>(CModInfo &info)
 {
 	info.SetWikiPage("Twitch");
-	info.SetHasArgs(true);
+	info.SetHasArgs(false);
 }
 
 NETWORKMODULEDEFS(TwitchTMI, "Twitch IRC helper module")

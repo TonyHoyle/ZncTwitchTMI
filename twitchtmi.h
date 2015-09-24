@@ -12,8 +12,12 @@ class TwitchTMI : public CModule
 	friend class TwitchTMIUpdateTimer;
 	friend class TwitchTMIJob;
 
-	public:
-	MODCONSTRUCTOR(TwitchTMI) { }
+public:
+	MODCONSTRUCTOR(TwitchTMI) {
+                AddHelpCommand();
+                AddCommand("Debug", static_cast<CModCommand::ModCmdFunc>(&TwitchTMI::DebugCommand),
+                        "state", "on/off to enable debug");
+        }
 	virtual ~TwitchTMI();
 
 	virtual bool OnLoad(const CString &sArgsi, CString &sMessage);
@@ -21,6 +25,7 @@ class TwitchTMI : public CModule
 
 	virtual void OnIRCConnected();
 
+	virtual CModule::EModRet OnRaw(CString &sLine);
 	virtual CModule::EModRet OnUserRaw(CString &sLine);
 	virtual CModule::EModRet OnUserJoin(CString &sChannel, CString &sKey);
 	virtual CModule::EModRet OnPrivMsg(CNick &nick, CString &sMessage);
@@ -28,8 +33,11 @@ class TwitchTMI : public CModule
 	virtual CModule::EModRet OnChanAction (CNick &Nick, CChan &Channel, CString &sMessage);
 	virtual bool OnServerCapAvailable(const CString &sCap);
 
-	private:
+	void DebugCommand(const CString& sLine);
+
+private:
 	TwitchTMIUpdateTimer *timer;
+	bool debug;
 };
 
 class TwitchTMIUpdateTimer : public CTimer
