@@ -13,7 +13,7 @@ class TwitchTMI : public CModule
 	friend class TwitchTMIJob;
 
 	public:
-	MODCONSTRUCTOR(TwitchTMI) { lastFrankerZ = 0; }
+	MODCONSTRUCTOR(TwitchTMI) { }
 	virtual ~TwitchTMI();
 
 	virtual bool OnLoad(const CString &sArgsi, CString &sMessage);
@@ -30,7 +30,6 @@ class TwitchTMI : public CModule
 
 	private:
 	TwitchTMIUpdateTimer *timer;
-	std::time_t lastFrankerZ;
 };
 
 class TwitchTMIUpdateTimer : public CTimer
