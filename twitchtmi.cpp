@@ -58,7 +58,20 @@ void TwitchTMI::OnIRCConnected()
 CModule::EModRet TwitchTMI::OnRaw(CString &sLine)
 {
 	if(debug)
-		PutUser(":twitch PRIVMSG twitch:" + sLine);
+		PutUser(":twitch PRIVMSG twitch :" + sLine);
+
+/*	if(sLine.StartsWith("@")) {
+		sLine.LeftChomp();
+		sLine = sLine.Left(sLine.Find(" :"));
+		VCString vcLine;
+		sLine.Split(";", vcLine);
+		std::map<CString, CString> vcList;
+		for(int i=0; i<vcLine.size(); i++) {
+			VCString token;
+			if(vcLine[i].Split("=",token)==2)
+			  vcList[token[0]]=token[1];
+		} 
+	} */
 	return CModule::CONTINUE;
 }
 
@@ -207,7 +220,11 @@ void TwitchTMIJob::runMain()
 
 void TwitchTMI::DebugCommand(const CString& sLine)
 {
-	debug = sLine.AsLower() == "on";
+	debug = sLine.AsLower() == "debug on";
+	if(debug)
+		PutUser(":*twitch PRIVMSG *twitch :Debug is on");
+	else
+		PutUser(":*twitch PRIVMSG *twitch :Debug is off");
 }
 
 template<> void TModInfo<TwitchTMI>(CModInfo &info)
